@@ -1,285 +1,248 @@
 package Catalyst::View::CSV;
 
-use strict;
-use warnings;
-use base qw( Catalyst::View );
-use Catalyst::Exception;
-use Text::CSV;
+# Copyright (C) 2011 Michael Brown <mbrown@fensystems.co.uk>.
+#
+# This program is free software. You can redistribute it and/or modify
+# it under the same terms as Perl itself.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 =head1 NAME
 
-Catalyst::View::CSV - Comma separated values or Delimiter separated values for your data 
-
-=head1 VERSION
-
-Version 0.01
-
-=cut
-
-our $VERSION = '0.01';
-
-sub process {
-my ($self, $c) = @_;
-  my $template = $c->stash->{template};
-  my $content = $self->render($c, $template, $c->stash);
-
-  $c->res->headers->header("Content-Type" => "text/csv") if($c->res->headers->header("Content-Type") eq "");
-  $c->res->body( $content );
-}
-
-sub render {
-  my ($self, $c, $template, $args) = @_;
-
-  my $content;
-
-  my $quote_char = (defined($args->{'quote_char'})) ? $args->{'quote_char'} : '"';
-  my $escape_char = (defined($args->{'escape_char'})) ? $args->{'escape_char'} : '"';
-  my $sep_char = (defined($args->{'sep_char'})) ? $args->{'sep_char'} : ',';
-  my $eol = (defined($args->{'eol'})) ? $args->{'eol'} : "\n";
-
-  if(defined($args->{csv}) && ref($args->{csv}) =~ /ARRAY/) {
-    $content = $self->_csv($quote_char, $escape_char, $sep_char, $eol, $c->stash->{csv});
-  }
-  else {
-    my @data;
-    foreach my $key(%{$args}) {
-      if(ref($args->{$key}) =~ /ARRAY/) {
-        push(@data,@{$args->{$key}});
-      }
-    }
-
-    $content = $self->_csv($quote_char, $escape_char, $sep_char, $eol, \@data);
-  }
-
-  return $content;
-}
-
-sub _csv {
-  my ($self, $quote_char, $escape_char, $sep_char, $eol, $data) = @_;
-
-  my $content;
-
-  my $csv = Text::CSV->new ({
-     quote_char          => $quote_char,
-     escape_char         => $escape_char,
-     sep_char            => $sep_char,
-     eol                 => $eol,
-     binary              => 1,
-     allow_loose_quotes  => 1,
-     allow_loose_escapes => 1,
-     allow_whitespace    => 1,
-  });
-
-  foreach my $row(@{$data}) {
-    $row = [$row] if(ref($row) !~ /ARRAY/);
-
-    my $status = $csv->combine(@{$row});
-    Catalyst::Exception->throw("Text::CSV->combine Error: ".$csv->error_diag()) if(!$status);
-    $content .= $csv->string();
-  }
-
-  return $content;
-}
+Catalyst::View::CSV - CSV view class
 
 =head1 SYNOPSIS
 
-  # lib/MyApp/View/CSV.pm
-  package MyApp::View::CSV;
-  use base qw( Catalyst::View::CSV );
-  1;
+    # Create MyApp::View::CSV using the helper:
+    script/create.pl view CSV CSV
 
-  # lib/MyApp/Controller/SomeController.pm
-  sub example_action_1 : Local {
-    my ($self, $c) = @_;
-  
-    # Array reference of array references.
-    my $data = [
-      ['col 1','col 2','col ...','col N'], # row 1
-      ['col 1','col 2','col ...','col N'], # row 2
-      ['col 1','col 2','col ...','col N'], # row ...
-      ['col 1','col 2','col ...','col N']  # row N
-    ];
+    # Create MyApp::View::CSV manually:
+    package MyApp::View::CSV;
+    use base qw ( Catalyst::View::CSV );
+    __PACKAGE__->config ( sep_char => ",", suffix => "csv" );
+    1;
 
-    # To output your data in comma seperated values just pass your array by reference into the 'csv' key of the stash
-    $c->stash->{'csv'} = $data;
+    # Return a CSV view from a controller:
+    $c->stash ( columns => [ qw ( Title Date ) ],
+		cursor => $c->model ( "FilmDB::Film" )->cursor,
+		current_view => "CSV" );
+    # or
+    $c->stash ( columns => [ qw ( Title Date ) ],
+		data => [
+		  [ "Dead Poets Society", "1989" ],
+		  [ "Stage Beauty", "2004" ],
+		  ...
+		],
+		current_view => "CSV" );
 
-    # Finally forward processing to the CSV View
-    $c->forward('MyApp::View::CSV');
-  }
+=head1 DESCRIPTION
 
-  # Other ways of storing data
-  sub example_action_2 : Local {
-    my ($self, $c) = @_;
+L<Catalyst::View::CSV> provides a L<Catalyst> view that generates CSV
+files.
 
-    # Array of array references
-    my @data;
-
-    push(@data,['col 1','col 2','col ...','col N']); # row 1
-    push(@data,['col 1','col 2','col ...','col N']); # row 2
-    push(@data,['col 1','col 2','col ...','col N']); # row ...
-    push(@data,['col 1','col 2','col ...','col N']); # row N
-
-    # OR to produce a single column of data you can simply do the following 
-    my @data = (
-                'col 1 row 1',
-                'col 1 row 2',
-                'col 1 row ...',
-                'col 1 row N'
-               );
-
-    $c->stash->{'csv'} = \@data;
-
-    $c->forward('MyApp::View::CSV');
-  }
-
-  # Available Options to produce other types of delimiter seperated output
-  sub  example_action_3 : Local {
-    my ($self, $c) = @_;
+You can use either a Perl array of arrays or a database cursor as the
+source of the CSV data.  For example:
 
     my $data = [
-      ['col 1','col 2','col ...','col N'], # row 1
-      ['col 1','col 2','col ...','col N'] # row 2
+      [ "Dead Poets Society", "1989" ],
+      [ "Stage Beauty", "2004" ],
+      ...
     ];
+    $c->stash ( data => $data );
 
-    # You can change any of the aspects of a delimiter seperated values format by storing them in the appropriate stash key
-    # This is an example of tab seperated values for instance
+or
 
-    $c->stash->{'quote_char'} = '"'; # default: '"'
+    my $resultset = $c->model ( "FilmDB::Film" )->search ( ... );
+    $c->stash ( cursor => $resultset->cursor );
 
-    $c->stash->{'escape_char'} = '"'; # default: '"'
+The CSV file is generated using L<Text::CSV>.
 
-    $c->stash->{'sep_char'} = '\t'; # default: ','
+=head1 CONFIGURATION PARAMETERS
 
-    $c->stash->{'eol'} = "\n"; # default: "\n"
+=head2 suffix
 
-    $c->stash->{'csv'} = $data;
-  }
+The filename suffix that will be applied to the generated CSV file.
+Defaults to C<csv>.  For example, if the request URI is
+C<http://localhost:3000/report> then the generated CSV file will be
+named C<report.csv>.
 
-=head1 MIME MEDIA TYPE
+Set to C<undef> to prevent any manipulation of the filename suffix.
 
-If the Content-Type HTTP Header is not set, it will default to 'text/csv'.
+=head2 charset
 
-  # Example of setting your own Content-Type
-  $c->res->headers->header('Content-Type' => 'text/plain');
+The character set stated in the MIME type of the downloaded CSV file.
+Defaults to C<utf-8>.
 
-  # Forward processing to CSV View with a text/plain Content-Type
-  $c->forward("MyApp::View::CSV");
+=head2 eol, quote_char, sep_char, etc.
 
-=head1 OPTIONS
+Any remaining configuration parameters are passed directly to
+L<Text::CSV>.
 
-=over 4
+=head1 STASH PARAMETERS
 
-=item quote_char
+=head2 data
 
-Determines what value will be enclosed within if it contains whitespace or the delimiter character. DEFAULT: '"'
+An array of arrays containing the data to be included in the generated
+CSV file.  For example:
 
-  $c->stash->{'quote_char'} = '/';
+    my $data = [
+      [ "Dead Poets Society", "1989" ],
+      [ "Stage Beauty", "2004" ],
+    ];
+    $c->stash ( data => $data );
 
-=item escape_char
+will (assuming the default configuration parameters) generate the CSV
+file body:
 
-Determines what value will be to escape any delimiter's found in a column. DEFAULT: '"'
+    "Dead Poets Society",1989
+    "Stage Beauty",2004
 
-  $c->stash->{'escape_char'} = '/';
+You must specify either C<data> or C<cursor>.
 
-=item sep_char
+=head2 cursor
 
-Determines the separator between columns. DEFAULT: ','
+A database cursor providing access to the data to be included in the
+generated CSV file.  If you are using L<DBIx::Class>, then you can
+obtain a cursor from any result set using the C<cursor()> method.  For
+example:
 
-  $c->stash->{'sep_char'} = '|';
+    my $resultset = $c->model ( "FilmDB::Film" )->search ( ... );
+    $c->stash ( cursor => $resultset->cursor );
 
-=item eol
+You must specify either C<data> or C<cursor>.  For large data sets,
+using a cursor may be more efficient since it avoids copying the whole
+data set into memory.
 
-Any characters defined in eol will be placed at the end of a row. DEFAULT: '\n'
+=head2 columns
 
-  $c->stash->{'eol'} = '\0';
+An optional list of column headings.  For example:
 
-=item csv
+    $c->stash ( columns => [ qw ( Title Date ) ] );
 
-The data that will be processed into delimiter separated values format is stored here. The data should be an array ref of array refs of scalars or an array ref of scalars. Note: if nothing is found in csv, the stash is searched and any array references found will be used as the data instead.
+will produce the column heading row:
 
-  # Array ref of array refs of scalars
-  my $data = [
-    ['apple','banana','pear'],
-    ['red','yellow','green']
-  ];
+    Title,Date
 
-  $c->stash->{csv} = $data;
+If no column headings are provided, the CSV file will be generated
+without a header row (and the MIME type attributes will indicate that
+no header row is present).
 
-  # Array ref of scalars
-  my @data = ('Jan','Feb','Mar','Apr');
- 
-  $c->stash->{csv} = \@data;
+Extracting the column names from a L<DBIx::Class> result set is
+surprisingly non-trivial.  The closest approximation is
 
-=back
+    $c->stash ( columns => $resultset->result_source->columns );
 
-=head1 SUBROUTINES
-
-=over 4
-
-=item process
-
-This method will be called by Catalyst if it is asked to forward to a component without a specified action.
-
-=item render
-
-Allows others to use this view for much more fine-grained content generation.
-
-=item _csv
-
-Subroutine that actually produces the delimiter separated values. Intended to be private in scope to this module.
-
-=back
-
-=head1 AUTHOR
-
-Travis Chase, C<< <gaudeon at cpan.org> >>
-
-=head1 BUGS
-
-Please report any bugs or feature requests to C<bug-catalyst-view-csv at rt.cpan.org>, or through
-the web interface at L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Catalyst-View-CSV>.  I will be notified, and then you'll
-automatically be notified of progress on your bug as I make changes.
-
-=head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc Catalyst::View::CSV
-
-
-You can also look for information at:
-
-=over 4
-
-=item * RT: CPAN's request tracker
-
-L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Catalyst-View-CSV>
-
-=item * AnnoCPAN: Annotated CPAN documentation
-
-L<http://annocpan.org/dist/Catalyst-View-CSV>
-
-=item * CPAN Ratings
-
-L<http://cpanratings.perl.org/d/Catalyst-View-CSV>
-
-=item * Search CPAN
-
-L<http://search.cpan.org/dist/Catalyst-View-CSV>
-
-=back
-
-=head1 SEE ALSO
-
-L<Catalyst> L<Text::CSV>
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2008 Travis Chase, all rights reserved.
-
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This will use the column names from the primary result source
+associated with the result set.  If you are doing anything even
+remotely sophisticated, then this will not be what you want.  There
+does not seem to be any supported way to properly extract a list of
+column names from the result set itself.
 
 =cut
 
-1; # End of Catalyst::View::CSV
+use Text::CSV;
+use URI;
+use base qw ( Catalyst::View );
+use mro "c3";
+use strict;
+use warnings;
+
+use 5.009_005;
+our $VERSION = "1.0";
+
+__PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
+
+sub new {
+  ( my $self, my $app, my $arguments ) = @_;
+
+  # Resolve configuration
+  my $config = {
+    eol => "\r\n",
+    charset => "utf-8",
+    suffix => "csv",
+    %{ $self->config },
+    %$arguments,
+  };
+  $self = $self->next::method ( $app, $config );
+
+  # Record character set
+  $self->charset ( $config->{charset} );
+  delete $config->{charset};
+
+  # Record suffix
+  $self->suffix ( $config->{suffix} );
+  delete $config->{suffix};
+
+  # Create underlying Text::CSV object
+  delete $config->{catalyst_component_name};
+  my $csv = Text::CSV->new ( $config );
+  $self->csv ( $csv );
+
+  return $self;
+}
+
+sub process {
+  ( my $self, my $c ) = @_;
+
+  # Extract instance parameters
+  my $charset = $self->charset;
+  my $suffix = $self->suffix;
+  my $csv = $self->csv;
+
+  # Extract stash parameters
+  my $columns = $c->stash->{columns};
+  die "No cursor or inline data provided\n"
+      unless exists $c->stash->{data} || exists $c->stash->{cursor};
+  my $data = $c->stash->{data};
+  my $cursor = $c->stash->{cursor};
+
+  # Determine resulting CSV filename
+  my $filename = [ $c->req->uri->path_segments ]->[-1];
+  if ( $suffix ) {
+    $filename =~ s/\.[^.]*$//;
+    $filename .= ".".$suffix;
+  }
+
+  # Set HTTP headers
+  my $response = $c->response;
+  my $headers = $response->headers;
+  my @content_type = ( "text/csv", "charset=".$charset,
+		       "header=".( $columns ? "present" : "absent" ) );
+  $headers->content_type ( join ( "; ", @content_type ) );
+  $headers->header ( "Content-disposition",
+		     "attachment; filename=".$filename );
+
+  # Generate CSV file
+  if ( $columns ) {
+    $csv->print ( $response, $columns )
+	or die "Could not print column headings: ".$csv->error_diag."\n";
+  }
+  if ( $data ) {
+    foreach my $row ( @$data ) {
+      $csv->print ( $response, $row )
+	  or die "Could not generate row data: ".$csv->error_diag."\n";
+    }
+  } else {
+    while ( ( my @row = $cursor->next ) ) {
+      $csv->print ( $response, \@row )
+	  or die "Could not generate row data: ".$csv->error_diag."\n";
+    }
+  }
+
+  return 1;
+}
+
+=head1 AUTHOR
+
+Michael Brown <mbrown@fensystems.co.uk>
+
+=head1 LICENSE
+
+This library is free software. You can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=cut
+
+1;

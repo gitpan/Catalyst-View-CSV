@@ -1,17 +1,19 @@
-use strict;
-use warnings;
-use ExtUtils::MakeMaker;
+use inc::Module::Install;
 
-WriteMakefile(
-    NAME                => 'Catalyst::View::CSV',
-    AUTHOR              => 'Travis Chase <gaudeon@cpan.org>',
-    VERSION_FROM        => 'lib/Catalyst/View/CSV.pm',
-    ABSTRACT_FROM       => 'lib/Catalyst/View/CSV.pm',
-    PL_FILES            => {},
-    PREREQ_PM => {
-        'Test::More' => 0,
-        'Text::CSV' => '1.00',
-    },
-    dist                => { COMPRESS => 'gzip -9f', SUFFIX => 'gz', },
-    clean               => { FILES => 'Catalyst-View-CSV-*' },
-);
+name "Catalyst-View-CSV";
+all_from "lib/Catalyst/View/CSV.pm";
+license "perl";
+build_requires "Test::More";
+build_requires "Test::Exception";
+build_requires "Catalyst::Test";
+build_requires "FindBin";
+build_requires "Catalyst::Model::DBIC::Schema";
+build_requires "DBIx::Class::Schema";
+build_requires "DBD::SQLite";
+
+requires "Catalyst::View";
+requires "Text::CSV";
+recommends "Text::CSV_XS";
+requires "URI";
+
+WriteAll;

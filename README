@@ -1,8 +1,7 @@
-Catalyst-View-CSV
+Catalyst::View::CSV
+===================
 
-VERSION 0.01
-
-Comma separated values or Delimiter separated values for your data
+See the module documentation for more information
 
 INSTALLATION
 
@@ -13,31 +12,13 @@ To install this module, run the following commands:
 	make test
 	make install
 
-SUPPORT AND DOCUMENTATION
-
-After installing, you can find documentation for this module with the
-perldoc command.
-
-    perldoc Catalyst::View::CSV
-
-You can also look for information at:
-
-    RT, CPAN's request tracker
-        http://rt.cpan.org/NoAuth/Bugs.html?Dist=Catalyst-View-CSV
-
-    AnnoCPAN, Annotated CPAN documentation
-        http://annocpan.org/dist/Catalyst-View-CSV
-
-    CPAN Ratings
-        http://cpanratings.perl.org/d/Catalyst-View-CSV
-
-    Search CPAN
-        http://search.cpan.org/dist/Catalyst-View-CSV
-
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2008 Travis Chase
+Copyright (C) 2011 Michael Brown <mbrown@fensystems.co.uk>.
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
+This program is free software. You can redistribute it and/or modify
+it under the same terms as Perl itself.
 
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
