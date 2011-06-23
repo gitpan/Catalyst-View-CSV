@@ -3,8 +3,6 @@ package Catalyst::Helper::View::CSV;
 use strict;
 use warnings;
 
-our $VERSION = "1.00";
-
 =head1 NAME
 
 Catalyst::Helper::View::CSV - Helper for CSV views

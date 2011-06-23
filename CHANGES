@@ -1,3 +1,7 @@
+1.0.1	2011-06-23
+
+	Add some missing test dependencies to Makefile.PL
+
 1.0	2011-06-20
 
 	First released version
