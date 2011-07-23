@@ -3,9 +3,16 @@ abstract: 'CSV view class'
 author:
   - 'Michael Brown <mbrown@fensystems.co.uk>'
 build_requires:
+  Catalyst: 0
+  Catalyst::Action::RenderView: 0
+  Catalyst::Controller: 0
   Catalyst::Model::DBIC::Schema: 0
+  Catalyst::Plugin::ConfigLoader: 0
   Catalyst::Test: 0
+  CatalystX::Component::Traits: 0
+  Config::General: 0
   DBD::SQLite: 0
+  DBIx::Class: 0
   DBIx::Class::Schema: 0
   ExtUtils::MakeMaker: 6.42
   FindBin: 0
@@ -34,4 +41,4 @@ requires:
   perl: 5.9.5
 resources:
   license: http://dev.perl.org/licenses/
-version: 1.1
+version: 1.1.1
