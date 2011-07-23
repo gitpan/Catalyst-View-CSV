@@ -1,5 +1,6 @@
 package TestApp::Controller::Root;
 
+use TestApp::Object;
 use base qw ( Catalyst::Controller );
 use strict;
 use warnings;
@@ -13,6 +14,8 @@ sub literal :Local {
     [ "1", "first entry" ],
     [ "2", "second" ],
     [ "3", "third" ],
+    { index => "4", entry => "fourth" },
+    TestApp::Object->new ( index => 5, entry => "fifth" ),
   ];
   $c->stash ( data => $data,
 	      columns => [ qw ( index entry ) ],

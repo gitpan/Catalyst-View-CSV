@@ -42,8 +42,9 @@ Catalyst::View::CSV - CSV view class
 L<Catalyst::View::CSV> provides a L<Catalyst> view that generates CSV
 files.
 
-You can use either a Perl array of arrays or a database cursor as the
-source of the CSV data.  For example:
+You can use either a Perl array of arrays, an array of hashes, an
+array of objects, or a database cursor as the source of the CSV data.
+For example:
 
     my $data = [
       [ "Dead Poets Society", "1989" ],
@@ -84,17 +85,38 @@ L<Text::CSV>.
 
 =head2 data
 
-An array of arrays containing the data to be included in the generated
+An array containing the literal data to be included in the generated
 CSV file.  For example:
 
+    # Array of arrays
     my $data = [
       [ "Dead Poets Society", "1989" ],
       [ "Stage Beauty", "2004" ],
     ];
     $c->stash ( data => $data );
 
-will (assuming the default configuration parameters) generate the CSV
-file body:
+or
+
+    # Array of hashes
+    my $columns = [ qw ( Title Date ) ];
+    my $data = [
+      { Title => "Dead Poets Society", Date => 1989 },
+      { Title => "Stage Beauty", Date => 2004 },
+    ];
+    $c->stash ( data => $data, columns => $columns );
+
+or
+
+    # Array of objects
+    my $columns = [ qw ( Title Date ) ];
+    my $data = [
+      Film->new ( Title => "Dead Poets Society", Date => 1989 ),
+      Film->new ( Title => "Stage Beauty", Date => 2004 ),
+    ];
+    $c->stash ( data => $data, columns => $columns );
+
+will all (assuming the default configuration parameters) generate the
+CSV file body:
 
     "Dead Poets Society",1989
     "Stage Beauty",2004
@@ -129,6 +151,11 @@ If no column headings are provided, the CSV file will be generated
 without a header row (and the MIME type attributes will indicate that
 no header row is present).
 
+If you are using literal data in the form of an B<array of hashes> or
+an B<array of objects>, then you must specify C<columns>.  You do not
+need to specify C<columns> when using literal data in the form of an
+B<array of arrays>, or when using a database cursor.
+
 Extracting the column names from a L<DBIx::Class> result set is
 surprisingly non-trivial.  The closest approximation is
 
@@ -150,7 +177,7 @@ use strict;
 use warnings;
 
 use 5.009_005;
-our $VERSION = "1.0.1";
+our $VERSION = "1.1";
 
 __PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
 
@@ -221,6 +248,13 @@ sub process {
   }
   if ( $data ) {
     foreach my $row ( @$data ) {
+      if ( ref $row eq "ARRAY" ) {
+	# No futher processing required
+      } elsif ( ref $row eq "HASH" ) {
+	$row = [ @$row{@$columns} ];
+      } else {
+	$row = [ map { $row->$_ } @$columns ];
+      }
       $csv->print ( $response, $row )
 	  or die "Could not generate row data: ".$csv->error_diag."\n";
     }

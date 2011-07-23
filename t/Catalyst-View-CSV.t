@@ -21,6 +21,8 @@ index,entry\r
 1,"first entry"\r
 2,second\r
 3,third\r
+4,fourth\r
+5,fifth\r
 EOF
 }
 
