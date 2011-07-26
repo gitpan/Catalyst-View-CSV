@@ -1,3 +1,9 @@
+1.1.2	2011-07-26
+
+	Fix files missing from MANIFEST and add a release.sh script to
+	ensure that none of the arcane steps are missing from the Perl
+	module release process
+
 1.1.1	2011-07-23
 
 	Reinstate changes accidentally obliterated by incorrect usage
