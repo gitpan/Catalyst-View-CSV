@@ -57,6 +57,19 @@ sub tsv :Local {
 	      current_view => "TSV" );
 }
 
+sub filename :Local {
+  ( my $self, my $c ) = @_;
+
+  my $resultset = $c->model ( "TestDB::Person" )->search ( {}, {
+    select => [ qw ( name age ) ],
+    order_by => [ qw ( age name ) ],
+  } );
+  $c->stash ( cursor => $resultset->cursor,
+	      columns => [ qw ( Name Age ) ],
+	      filename => "explicit.txt",
+	      current_view => "CSV" );
+}
+
 sub end :ActionClass("RenderView") {
 }
 

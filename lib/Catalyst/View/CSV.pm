@@ -60,6 +60,17 @@ or
 
 The CSV file is generated using L<Text::CSV>.
 
+=head1 FILENAME
+
+The filename for the generated CSV file defaults to the last segment
+of the request URI plus a C<.csv> suffix.  For example, if the request
+URI is C<http://localhost:3000/report> then the generated CSV file
+will be named C<report.csv>.
+
+You can use the C<suffix> configuration parameter to specify the
+suffix of the generated CSV file.  You can also use the C<filename>
+stash parameter to specify the filename on a per-request basis.
+
 =head1 CONFIGURATION PARAMETERS
 
 =head2 suffix
@@ -167,6 +178,16 @@ remotely sophisticated, then this will not be what you want.  There
 does not seem to be any supported way to properly extract a list of
 column names from the result set itself.
 
+=head2 filename
+
+An optional filename for the generated CSV file.  For example:
+
+    $c->stash ( data => $data, filename => "films.csv" );
+
+If this is not specified, then the filename will be generated from the
+request URI and the C<suffix> configuration parameter as described
+above.
+
 =cut
 
 use Text::CSV;
@@ -177,7 +198,7 @@ use strict;
 use warnings;
 
 use 5.009_005;
-our $VERSION = "1.1.2";
+our $VERSION = "1.2";
 
 __PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
 
@@ -224,12 +245,15 @@ sub process {
       unless exists $c->stash->{data} || exists $c->stash->{cursor};
   my $data = $c->stash->{data};
   my $cursor = $c->stash->{cursor};
+  my $filename = $c->stash->{filename};
 
   # Determine resulting CSV filename
-  my $filename = [ $c->req->uri->path_segments ]->[-1];
-  if ( $suffix ) {
-    $filename =~ s/\.[^.]*$//;
-    $filename .= ".".$suffix;
+  if ( ! defined $filename ) {
+    $filename = [ $c->req->uri->path_segments ]->[-1];
+    if ( $suffix ) {
+      $filename =~ s/\.[^.]*$//;
+      $filename .= ".".$suffix;
+    }
   }
 
   # Set HTTP headers
