@@ -198,7 +198,7 @@ use strict;
 use warnings;
 
 use 5.009_005;
-our $VERSION = "1.2";
+our $VERSION = "1.3";
 
 __PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
 
@@ -259,8 +259,9 @@ sub process {
   # Set HTTP headers
   my $response = $c->response;
   my $headers = $response->headers;
-  my @content_type = ( "text/csv", "charset=".$charset,
-		       "header=".( $columns ? "present" : "absent" ) );
+  my @content_type = ( "text/csv",
+		       "header=".( $columns ? "present" : "absent" ),
+		       "charset=".$charset );
   $headers->content_type ( join ( "; ", @content_type ) );
   $headers->header ( "Content-disposition",
 		     "attachment; filename=".$filename );
