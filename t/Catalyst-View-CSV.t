@@ -36,6 +36,22 @@ EOF
 }
 
 {
+  my $url = "/literal/";
+  action_ok ( $url );
+  contenttype_is ( $url, "text/csv" );
+  filename_is ( $url, "literal.csv" );
+  my $content = get ( $url );
+  is ( $content, <<"EOF" );
+index,entry\r
+1,"first entry"\r
+2,second\r
+3,third\r
+4,fourth\r
+5,fifth\r
+EOF
+}
+
+{
   my $url = "/db";
   action_ok ( $url );
   contenttype_is ( $url, "text/csv" );

@@ -198,7 +198,7 @@ use strict;
 use warnings;
 
 use 5.009_005;
-our $VERSION = "1.3";
+our $VERSION = "1.4";
 
 __PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
 
@@ -249,7 +249,8 @@ sub process {
 
   # Determine resulting CSV filename
   if ( ! defined $filename ) {
-    $filename = [ $c->req->uri->path_segments ]->[-1];
+    $filename = ( [ $c->req->uri->path_segments ]->[-1] ||
+		  [ $c->req->uri->path_segments ]->[-2] );
     if ( $suffix ) {
       $filename =~ s/\.[^.]*$//;
       $filename .= ".".$suffix;

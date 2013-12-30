@@ -1,0 +1,59 @@
+{
+   "abstract" : "CSV view class",
+   "author" : [
+      "Michael Brown <mbrown@fensystems.co.uk>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Catalyst-View-CSV",
+   "no_index" : {
+      "directory" : [
+         "t",
+         "inc"
+      ]
+   },
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Catalyst" : "0",
+            "Catalyst::Action::RenderView" : "0",
+            "Catalyst::Controller" : "0",
+            "Catalyst::Model::DBIC::Schema" : "0",
+            "Catalyst::Plugin::ConfigLoader" : "0",
+            "Catalyst::Test" : "0",
+            "CatalystX::Component::Traits" : "0",
+            "Config::General" : "0",
+            "DBD::SQLite" : "0",
+            "DBIx::Class" : "0",
+            "DBIx::Class::Schema" : "0",
+            "ExtUtils::MakeMaker" : "6.59",
+            "FindBin" : "0",
+            "Moose" : "0",
+            "Test::Exception" : "0",
+            "Test::More" : "0"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "ExtUtils::MakeMaker" : "0"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "Catalyst::View" : "0",
+            "Text::CSV" : "0",
+            "URI" : "0",
+            "perl" : "5.009005"
+         }
+      }
+   },
+   "release_status" : "stable",
+   "version" : "1.4"
+}

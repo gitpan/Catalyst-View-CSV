@@ -20,10 +20,9 @@ build_requires:
   Test::Exception: 0
   Test::More: 0
 configure_requires:
-  ExtUtils::MakeMaker: 6.59
-distribution_type: module
-dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
+  ExtUtils::MakeMaker: 0
+dynamic_config: 0
+generated_by: 'ExtUtils::MakeMaker version 6.64, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -31,15 +30,11 @@ meta-spec:
 name: Catalyst-View-CSV
 no_index:
   directory:
-    - inc
     - t
-recommends:
-  Text::CSV_XS: 0
+    - inc
 requires:
   Catalyst::View: 0
   Text::CSV: 0
   URI: 0
-  perl: 5.9.5
-resources:
-  license: http://dev.perl.org/licenses/
+  perl: 5.009005
 version: 1.4
