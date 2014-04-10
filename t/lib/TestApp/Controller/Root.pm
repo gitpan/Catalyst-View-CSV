@@ -25,7 +25,7 @@ sub literal :Local {
 sub db :Local {
   ( my $self, my $c ) = @_;
 
-  my $resultset = $c->model ( "TestDB::Person" )->search ( {}, {
+  my $resultset = $c->model ( "TestDB::Person" )->search ( undef, {
     select => [ qw ( name age ) ],
     order_by => [ qw ( name age ) ],
   } );
@@ -37,7 +37,7 @@ sub db :Local {
 sub noheader :Local {
   ( my $self, my $c ) = @_;
 
-  my $resultset = $c->model ( "TestDB::Person" )->search ( {}, {
+  my $resultset = $c->model ( "TestDB::Person" )->search ( undef, {
     select => [ qw ( name age ) ],
     order_by => [ qw ( name age ) ],
   } );
@@ -48,7 +48,7 @@ sub noheader :Local {
 sub tsv :Local {
   ( my $self, my $c ) = @_;
 
-  my $resultset = $c->model ( "TestDB::Person" )->search ( {}, {
+  my $resultset = $c->model ( "TestDB::Person" )->search ( undef, {
     select => [ qw ( name age ) ],
     order_by => [ qw ( age name ) ],
   } );
@@ -60,7 +60,7 @@ sub tsv :Local {
 sub filename :Local {
   ( my $self, my $c ) = @_;
 
-  my $resultset = $c->model ( "TestDB::Person" )->search ( {}, {
+  my $resultset = $c->model ( "TestDB::Person" )->search ( undef, {
     select => [ qw ( name age ) ],
     order_by => [ qw ( age name ) ],
   } );
