@@ -198,7 +198,7 @@ use strict;
 use warnings;
 
 use 5.009_005;
-our $VERSION = "1.4.1";
+our $VERSION = "1.5";
 
 __PACKAGE__->mk_accessors ( qw ( csv charset suffix ) );
 

@@ -1,3 +1,8 @@
+1.5	2014-04-10
+
+	Increase version number for no good reason; CPAN seems to
+	believe that 1.4.1 is lower than 1.4.
+
 1.4.1   2014-04-10
 
 	Use search(undef,\%attrs) rather than search({},\%attrs)
